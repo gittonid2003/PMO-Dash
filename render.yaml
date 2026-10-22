@@ -1,0 +1,40 @@
+# One-click Render setup ("Blueprint").
+# Render dashboard -> New -> Blueprint -> pick this GitHub repo -> Apply.
+# Creates the web app and its PostgreSQL database in Singapore, wires them
+# together, and generates the JWT secret. Nothing to type in by hand.
+#
+# Both plans start on Render's free tier so you can try it at no cost.
+# Free web services sleep after ~15 min idle (first visit then takes ~1 min)
+# and free databases expire ~30 days after creation. Before the team relies
+# on it, change both plans to paid ones in the Render dashboard (see
+# DEPLOYMENT.md, "Realistic ongoing cost").
+services:
+  - type: web
+    runtime: node
+    name: aone-pmo
+    plan: free
+    region: singapore
+    rootDir: server
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: aone-pmo-db
+          property: connectionString
+      # The internal database URL runs on Render's private network, where
+      # Render says TLS isn't required, so SSL is off for this connection.
+      - key: DATABASE_SSL
+        value: "false"
+
+databases:
+  - name: aone-pmo-db
+    plan: free
+    region: singapore
+    databaseName: aone_pmo
+    user: aone_pmo
