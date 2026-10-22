@@ -19,15 +19,16 @@ plain `http://` on a server address (the setup that was failing):
 | 9 | **10 logins per 15 min per IP** — an office sharing one IP would lock itself out. | Only failed attempts count. |
 | 10 | Migration runner: ignored `DATABASE_SSL` (DEPLOYMENT.md step 4 failed on SSL-only DBs); could fake-skip real migrations when baselining; required access to the `postgres` maintenance DB. | Fixed in `db/migrate.js`. |
 | 11 | Modal auto-focus could move the cursor out of a field the user had already clicked into. | Only auto-focus when nothing in the modal is focused. `web/js/render-common.js` |
-| 12 | Security: CORS reflected any origin with credentials; dependencies had 1 critical + 3 moderate advisories (proxy-addr, qs) and an outdated multer. | CORS off unless `CORS_ORIGIN` is set; `npm audit` now reports 0. |
+| 12 | Docker rebuilds could fail with "permission denied" because the build tried to read the database folder (`data/`) inside the project. | `data` excluded in `.dockerignore`; new one-command `deploy.sh` and `HOSTING-STEPS.md`. |
+| 13 | Security: CORS reflected any origin with credentials; dependencies had 1 critical + 3 moderate advisories (proxy-addr, qs) and an outdated multer. | CORS off unless `CORS_ORIGIN` is set; `npm audit` now reports 0. |
 
 ## Deploying this update (hosting team)
 
-1. Replace the code with this version (or `git am` the patch) and rebuild:
-   `docker compose up -d --build` — or, without Docker, `cd server && npm install && npm start`.
+1. Follow `HOSTING-STEPS.md` section A: copy the old `.env` and `data/` into
+   the new folder, then run `./deploy.sh`.
 2. Migration `002` runs automatically on start. Existing users, clients and
    projects are kept (tested against a database created by the old version).
 3. Nothing else needs changing in `.env`. Leave `COOKIE_SECURE` unset (auto).
 4. Strongly recommended: serve the site over HTTPS via a reverse proxy
-   (see DEPLOYMENT.md → "Self-hosting on your own server").
+   (see `HOSTING-STEPS.md` section D).
 5. Users who were stuck should just reload the page and log in again.

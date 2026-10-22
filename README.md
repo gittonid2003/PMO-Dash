@@ -63,7 +63,10 @@ POSTGRES_PASSWORD=change-this-local-password
 JWT_SECRET=use-a-random-string-of-at-least-32-characters
 ```
 
-Then build and start the stack:
+Or skip the manual `.env` and run `./deploy.sh`, which creates one with
+random values on a new install, then builds, starts and waits until the app
+is healthy (see `HOSTING-STEPS.md`). To do it by hand, build and start the
+stack:
 
 ```bash
 docker compose up -d --build
