@@ -19,7 +19,7 @@ plain `http://` on a server address (the setup that was failing):
 | 9 | **10 logins per 15 min per IP** — an office sharing one IP would lock itself out. | Only failed attempts count. |
 | 10 | Migration runner: ignored `DATABASE_SSL` (DEPLOYMENT.md step 4 failed on SSL-only DBs); could fake-skip real migrations when baselining; required access to the `postgres` maintenance DB. | Fixed in `db/migrate.js`. |
 | 11 | Modal auto-focus could move the cursor out of a field the user had already clicked into. | Only auto-focus when nothing in the modal is focused. `web/js/render-common.js` |
-| 12 | Docker rebuilds could fail with "permission denied" because the build tried to read the database folder (`data/`) inside the project. | `data` excluded in `.dockerignore`; new one-command `deploy.sh` and `HOSTING-STEPS.md`. |
+| 12 | On servers using Docker's older build engine, rebuilding failed once the database existed ("can't stat data/postgres"): the build tried to read the database folder inside the project. | `data` excluded in `.dockerignore`; new one-command `deploy.sh` and `HOSTING-STEPS.md`. |
 | 13 | Security: CORS reflected any origin with credentials; dependencies had 1 critical + 3 moderate advisories (proxy-addr, qs) and an outdated multer. | CORS off unless `CORS_ORIGIN` is set; `npm audit` now reports 0. |
 
 ## Deploying this update (hosting team)

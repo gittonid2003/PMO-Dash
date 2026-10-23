@@ -16,31 +16,43 @@ put `sudo` in front of the commands below.
 
 ## A. Update the existing installation (keeps all accounts and data)
 
-1. In the **old** folder, stop the running app (the database files stay
-   on disk):
+First, point `OLD` at the folder that holds the **currently running**
+`docker-compose.yml` (its `.env` and `data/` folder are in there too):
+```bash
+OLD=/path/to/current/aone-pmo-cloud
+ls "$OLD/docker-compose.yml" "$OLD/.env"     # both must be listed
+```
+
+1. Stop the running app (the database files stay on disk):
    ```bash
-   docker compose down
+   cd "$OLD" && docker compose down
    ```
-2. Unzip this package into a new folder, for example `~/aone-pmo-cloud-new`.
-3. Copy the old installation's secrets and database into the new folder:
+2. Unzip the new version in a fresh place. The zip contains a folder
+   called `aone-pmo-cloud`; everything happens **inside** that folder:
    ```bash
-   cp -a  ~/OLD-FOLDER/.env  ~/aone-pmo-cloud-new/
-   sudo cp -a  ~/OLD-FOLDER/data  ~/aone-pmo-cloud-new/
+   mkdir -p ~/aone-pmo-update && cd ~/aone-pmo-update
+   unzip /path/to/AOne-PMO-Cloud.zip
+   cd aone-pmo-cloud
    ```
-   (If the old `.env` sets `POSTGRES_DATA_DIR` to another location, only
-   copy `.env`; the database is already outside the folder.)
+3. Bring over the secrets and the database:
+   ```bash
+   cp -a "$OLD/.env" .
+   sudo cp -a "$OLD/data" .
+   ls -A        # must show .env  data  deploy.sh  docker-compose.yml  server  web ...
+   ```
+   (If the old `.env` sets `POSTGRES_DATA_DIR` to another location, there is
+   no `data/` to copy; the database is already outside the folder.)
 4. Start the new version:
    ```bash
-   cd ~/aone-pmo-cloud-new
    ./deploy.sh
    ```
 5. Done. On start the app upgrades the database automatically (migration
-   `002`); existing users, clients, projects and documents are kept. Any
-   hand edits made to the old code (for example in `server/routes/auth.js`)
-   are replaced by this version, which is intended.
+   `002`); existing users, clients, projects, photos and documents are kept.
+   Any hand edits made to the old code (for example in
+   `server/routes/auth.js`) are replaced by this version, which is intended.
 
-Keep the old folder until you've checked the new one works; it's the
-rollback (`docker compose down` here, `docker compose up -d` there).
+Keep the old folder until you've checked the new one works. Rollback:
+`docker compose down` in the new folder, then `cd "$OLD" && docker compose up -d`.
 
 ## B. Fresh installation
 
